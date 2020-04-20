@@ -2,7 +2,7 @@
 
 ## Assignment
 
-Builds an API for the Bookmarks client <https://github.com/Thinkful-Ed/bookmarks-app/tree/prop-types>
+Build an API for the Bookmarks client <https://github.com/Thinkful-Ed/bookmarks-app/tree/prop-types>
 supporting GET, POST and DELETE.
 
 
