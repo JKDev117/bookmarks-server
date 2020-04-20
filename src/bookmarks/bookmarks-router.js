@@ -2,6 +2,7 @@ const express = require('express');
 const { v4: uuid } = require('uuid');
 const logger = require('../logger');
 const bookmarks = require('../store');
+const { isWebUri } = require('valid-url');
 
 const bookmarksRouter = express.Router();
 const bodyParser = express.json();
@@ -22,7 +23,28 @@ bookmarksRouter
         }
 
         if(!url) {
-            logger.error('URL is required');
+            logger.error('url is required');
+            return res
+                .status(400)
+                .send('Invalid data');
+        }
+
+        if(!isWebUri(url)) {
+            logger.error(`Invalid url ${url} supplied.`);
+            return res
+                .status(400)
+                .send('url must be a valid URL');
+        }
+
+        if(!rating) {
+            logger.error('rating between 0 and 5 is required');
+            return res
+                .status(400)
+                .send('Invalid data');
+        }        
+
+        if(!Number.isInteger(rating) || rating < 0 || rating > 5){
+            logger.error(`Invalid rating ${rating} supplied.`);
             return res
                 .status(400)
                 .send('Invalid data');
@@ -98,7 +120,7 @@ Postman
         "title": "Thinkful",
         "url": "https://www.thinkful.com",
         "description": "",
-        "rating": ""
+        "rating": 5
     }
 
 */
