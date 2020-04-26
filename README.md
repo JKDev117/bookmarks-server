@@ -8,4 +8,6 @@ To seed the database
 To migrate your test database  
 `npm run migrate:test`
 
+Thinkful's Solution:  
+<https://github.com/Thinkful-Ed/bookmarks-server/tree/db-with-express-example-solution>
 
