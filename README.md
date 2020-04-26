@@ -2,4 +2,10 @@
 
 ## Assignment 17.15
 
+To seed the database  
+`psql -U dunder_mifflin -d bookmarks-db -f ./seeds/seed.bookmarks_tb.sql`  
+
+To migrate your test database  
+`npm run migrate:test`
+
 
