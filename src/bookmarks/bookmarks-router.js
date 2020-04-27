@@ -1,8 +1,18 @@
 const express = require('express')
+const xss = require('xss') //sanitizing tool
 const BookmarksService = require('./bookmarks-service')
 
 const bookmarksRouter = express.Router()
 const jsonParser = express.json()
+
+const serializeBookmark = bookmark => ({
+    id: bookmark.id,
+    title: xss(bookmark.title),
+    url: xss(bookmark.url),
+    description: xss(bookmark.description),
+    rating: bookmark.rating
+})
+
 
 //Route '/'
 bookmarksRouter
@@ -13,7 +23,7 @@ bookmarksRouter
             req.app.get('db')
         )
             .then(bookmarks => {
-                res.json(bookmarks)
+                res.json(bookmarks.map(serializeBookmark))
             })
             .catch(next)
     })
@@ -37,7 +47,7 @@ bookmarksRouter
             .then(bookmark => {
                 res.status(201)
                    .location(`/bookmarks/${bookmark.id}`)
-                   .json(bookmark)
+                   .json(serializeBookmark(bookmark))
             })
             .catch(next)
     })
@@ -56,7 +66,7 @@ bookmarksRouter
                         error: {message: "Bookmark doesn't exist!"}
                     })
                 } 
-                res.json(bookmark)
+                res.json(serializeBookmark(bookmark))
             })
             .catch(next)
     })
@@ -64,4 +74,3 @@ bookmarksRouter
 
     module.exports = bookmarksRouter
 
-    

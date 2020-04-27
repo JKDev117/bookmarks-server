@@ -1,6 +1,7 @@
 const knex = require('knex')
 const app = require('../src/app')
-const makeBookmarksArray = require('./bookmarks.fixtures')
+const { makeBookmarksArray, makeMaliciousBookmark } = require('./bookmarks.fixtures')
+const { maliciousBookmark, expectedBookmark } = makeMaliciousBookmark()
 
 describe('Bookmarks Endpoints', function() {
     let db
@@ -46,6 +47,26 @@ describe('Bookmarks Endpoints', function() {
                     .expect(200, testBookmarks)
             })
         })
+
+        context('Given an XSS attack bookmark', () => {
+            beforeEach('insert malicious bookmark', () => {
+                return db
+                    .into('bookmarks_tb')
+                    .insert([maliciousBookmark])
+            })
+
+            it('removes XX attack content', () => {
+                return supertest(app)
+                    .get('/bookmarks')
+                    .expect(200)
+                    .expect(res => {
+                        expect(res.body[0].title).to.eql(expectedBookmark.title)
+                        expect(res.body[0].description).to.eql(expectedBookmark.description)
+                    })
+            })
+
+        })
+
     }) //end GET /bookmarks
 
 
@@ -76,11 +97,33 @@ describe('Bookmarks Endpoints', function() {
                     .expect(200, expectedBookmark)
             })
         })
+
+        context('Given an XSS attack bookmark', () => {
+
+            beforeEach('insert malicious bookmark', () => {
+                return db
+                    .into('bookmarks_tb')
+                    .insert([maliciousBookmark])
+            })
+
+            it('removes XSS attack content', () => {
+                return supertest(app)
+                    .get(`/bookmarks/${maliciousBookmark.id}`)
+                    .expect(200)
+                    .expect(res => {
+                        expect(res.body.title).to.eql(expectedBookmark.title)
+                        expect(res.body.description).to.eql(expectedBookmark.description)
+                    })
+            })
+
+
+        })
+
     }) //end GET /bookmarks/:bookmark_id   
 
 
     //POST /bookmarks
-    describe.only('POST /bookmarks', () => {
+    describe('POST /bookmarks', () => {
         it(`creates a bookmark, responding with 201 and the new bookmark`, function(){
             const newBookmark = {
                 title:  "Test new bookmark",
@@ -126,7 +169,18 @@ describe('Bookmarks Endpoints', function() {
                         error: { message: `Missing '${field}' in request body`}
                     })
             })
-        })    
+        })
+        
+        it('removes XSS attack content from response', () => {
+            return supertest(app)
+                .post(`/bookmarks`)
+                .send(maliciousBookmark)
+                .expect(201)
+                .expect(res => {
+                    expect(res.body.title).to.eql(expectedBookmark.title)
+                    expect(res.body.description).to.eql(expectedBookmark.description)
+                })
+        })
     })
 
 

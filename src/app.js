@@ -33,6 +33,11 @@ app.use(function errorHandler(error, req, res, next) {
 
 app.use(bookmarksRouter);
 
+app.get('/xss', (req,res) => {
+  res.cookie('secretToken', '1234567890') //setting a cookie that sits in your browser
+  res.sendFile(__dirname + '/xss-example.html') //serving the html file up to the browser
+})
+
 
 app.get('/', (req, res) => {
   res.send('Hello, world!')
