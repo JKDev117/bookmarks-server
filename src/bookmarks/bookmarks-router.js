@@ -6,7 +6,7 @@ const jsonParser = express.json()
 
 //Route '/'
 bookmarksRouter
-    .route('/')
+    .route('/bookmarks')
     //GET
     .get((req,res,next) => {
         BookmarksService.getAllBookmarks(
@@ -19,7 +19,7 @@ bookmarksRouter
     })
     //POST
     .post(jsonParser, (req,res,next) => {
-        const { title, url, description, rating} = req.body
+        const { title, url, description, rating} = req.body;
         const newBookmark = { title, url, description, rating }
         BookmarksService.insertBookmark(
             req.app.get('db'),
@@ -33,23 +33,27 @@ bookmarksRouter
             .catch(next)
     })
 
+
 //Route '/:bookmark_id
 bookmarksRouter
-    .route('/:bookmark_id')
+    .route(`/bookmarks/:bookmark_id`)
     //GET
     .get((req,res,next) => {
-        const knexInstance = req.get.app('db')
+        const knexInstance = req.app.get('db')
         BookmarksService.getById(knexInstance, req.params.bookmark_id)
             .then(bookmark => {
                 if(!bookmark){
                     return res.status(404).json({
-                        error: {message: `Bookmark doesn't exist!`}
+                        error: {message: "Bookmark doesn't exist!"}
                     })
                 } 
                 res.json(bookmark)
             })
             .catch(next)
     })
+
+
+
 
 
     module.exports = bookmarksRouter

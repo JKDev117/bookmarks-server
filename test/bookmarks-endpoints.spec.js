@@ -2,7 +2,7 @@ const knex = require('knex')
 const app = require('../src/app')
 const makeBookmarksArray = require('./bookmarks.fixtures')
 
-describe.only('Bookmarks Endpoints', function() {
+describe('Bookmarks Endpoints', function() {
     let db
 
     before('make knex instance', () => {
@@ -15,7 +15,7 @@ describe.only('Bookmarks Endpoints', function() {
     
     after('disconnect from db', () => db.destroy())
 
-    before('clean the table', ()=>db('bookmarks_tb').truncate())
+    before('clean the table', () => db('bookmarks_tb').truncate())
 
     afterEach('cleanup', () => db('bookmarks_tb').truncate())
     
@@ -51,12 +51,12 @@ describe.only('Bookmarks Endpoints', function() {
 
     //GET /bookmarks/:bookmark_id
     describe('GET /bookmarks/:bookmark_id', () => {
-        context('Given no bookmarks', ()=>{
+        context('Given no bookmarks', ()=> {
             it('responds with 404', () => {
                 const bookmarkId = 1
                 return supertest(app)
                     .get(`/bookmarks/${bookmarkId}`)
-                    .expect(404, {error: {message: "Bookmark doesn't exist" }})
+                    .expect(404, {error: {message: "Bookmark doesn't exist!" }})
             })
         })
         context('Given there are bookmarks in the database', () => {
@@ -80,7 +80,7 @@ describe.only('Bookmarks Endpoints', function() {
 
 
     //POST /bookmarks
-    describe.only('POST /bookmarks', () => {
+    describe('POST /bookmarks', () => {
         it(`creates a bookmark, responding with 201 and the new bookmark`, function(){
             const newBookmark = {
                 title:  "Test new website",
