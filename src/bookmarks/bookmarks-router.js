@@ -21,6 +21,15 @@ bookmarksRouter
     .post(jsonParser, (req,res,next) => {
         const { title, url, description, rating} = req.body;
         const newBookmark = { title, url, description, rating }
+
+        for(const [key, value] of Object.entries(newBookmark)){
+            if(value==null){
+                return res.status(400).json({
+                    error: { message: `Missing '${key}' in request body`}
+                })
+            }
+        }
+
         BookmarksService.insertBookmark(
             req.app.get('db'),
             newBookmark
@@ -53,7 +62,6 @@ bookmarksRouter
     })
 
 
-
-
-
     module.exports = bookmarksRouter
+
+    

@@ -80,10 +80,10 @@ describe('Bookmarks Endpoints', function() {
 
 
     //POST /bookmarks
-    describe('POST /bookmarks', () => {
+    describe.only('POST /bookmarks', () => {
         it(`creates a bookmark, responding with 201 and the new bookmark`, function(){
             const newBookmark = {
-                title:  "Test new website",
+                title:  "Test new bookmark",
                 url: "http://www.test-website.com",
                 description: "This is test website.",
                 rating: 4
@@ -106,6 +106,27 @@ describe('Bookmarks Endpoints', function() {
                         .expect(postRes.body)
                 )
         })
+
+        const requiredFields = ['title', 'url', 'rating']
+
+        requiredFields.forEach(field => {
+            const newBookmark = {
+                title:  "Test new bookmark",
+                url: "http://www.test-website.com",
+                description: "This is test website.",
+                rating: 4
+            }
+
+            it(`responds with 400 and an error message when the ${field} is missing`, () => {
+                delete newBookmark[field]
+                return supertest(app)
+                    .post('/bookmarks')
+                    .send(newBookmark)
+                    .expect(400, {
+                        error: { message: `Missing '${field}' in request body`}
+                    })
+            })
+        })    
     })
 
 
