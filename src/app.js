@@ -11,6 +11,7 @@ const logger = require('./logger');
 const BookmarksService = require('./bookmarks-service');
 
 const app = express();
+const jsonParser = express.json()
 
 const morganOption = (process.env.NODE_ENV === 'production')
   ? 'tiny'
@@ -49,6 +50,7 @@ app.use(function errorHandler(error, req, res, next) {
 app.use(bookmarksRouter);
 */
 
+//GET /bookmarks
 app.get('/bookmarks', (req, res, next) => {
   const knexInstance = req.app.get('db')
   BookmarksService.getAllBookmarks(knexInstance)
@@ -58,6 +60,7 @@ app.get('/bookmarks', (req, res, next) => {
     .catch(next) //passing next into the .catch from the promise chain so that any errors get handled by our error handler middleware
 })
 
+//GET /bookmarks/:bookmark_id
 app.get('/bookmarks/:bookmark_id', (req,res,next) => {
   const knexInstance = req.app.get('db')
   BookmarksService.getById(knexInstance, req.params.bookmark_id)
@@ -68,6 +71,22 @@ app.get('/bookmarks/:bookmark_id', (req,res,next) => {
         })
       }
       res.json(bookmark)
+    })
+    .catch(next)
+})
+
+//POST /bookmarks
+app.post('/bookmarks', jsonParser, (req,res,next) => {
+  const { title, url, description, rating } = req.body;
+  const newBookmark = { title, url, description, rating }
+  BookmarksService.insertBookmark(
+    req.app.get('db'),
+    newBookmark
+  )
+    .then(bookmark => {
+      res.status(201)
+         .location(`/bookmarks/${bookmark.id}`)
+         .json(bookmark)
     })
     .catch(next)
 })
