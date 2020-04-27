@@ -22,7 +22,7 @@ describe('Bookmarks Endpoints', function() {
     
     /* ------------------------------------------------------------------------------- */
 
-    //GET /api/bookmarks
+    // --------------------------------------------------------------------------// GET /api/bookmarks
     describe('GET /api/bookmarks', () => {
         context('Given no bookmarks', () => {
             it('responds with 200 and an empty list', () => {
@@ -70,7 +70,7 @@ describe('Bookmarks Endpoints', function() {
     }) //end GET /api/bookmarks
 
 
-    //GET /api/bookmarks/:bookmark_id
+    //// ----------------------------------------------------------------// GET /api/bookmarks/:bookmark_id
     describe('GET /api/bookmarks/:bookmark_id', () => {
         context('Given no bookmarks', ()=> {
             it('responds with 404', () => {
@@ -122,7 +122,7 @@ describe('Bookmarks Endpoints', function() {
     }) //end GET /api/bookmarks/:bookmark_id   
 
 
-    //POST /api/bookmarks
+    //// ------------------------------------------------------------------------------// POST /api/bookmarks
     describe('POST /api/bookmarks', () => {
         it(`creates a bookmark, responding with 201 and the new bookmark`, function(){
             const newBookmark = {
@@ -184,7 +184,7 @@ describe('Bookmarks Endpoints', function() {
     }) //end 'POST /api/bookmarks'
 
 
-    //DELETE /api/bookmarks/:bookmark_id
+    // -----------------------------------------------------------------------// DELETE /api/bookmarks/:bookmark_id
     describe(`DELETE /api/bookmarks/:bookmark_id`, () => {
         context('Given no bookmarks', () => {
             it('responds with 404', () => {
@@ -217,7 +217,89 @@ describe('Bookmarks Endpoints', function() {
                     )
             })
         })
-    })
+    }) //end describe `DELETE /api/bookmarks/:bookmark_id`
+
+    describe.only(`PATCH /api/bookmarks/:bookmark_id`, () => {
+        context(`Given no bookmarks`, () => {
+            it(`responds with 404`, () => {
+                const bookmarkId = 123456
+                return supertest(app)
+                    .patch(`/api/bookmarks/${bookmarkId}`)
+                    .expect(404, { error: { message: `Bookmark doesn't exist!` } })
+            })
+        }) //end context `Given no bookmarks`
+
+        context('Given there are Bookmarks in the database', () => {
+              const testBookmarks = makeBookmarksArray()
+         
+              beforeEach('insert Bookmarks', () => {
+                return db
+                  .into('bookmarks_tb')
+                  .insert(testBookmarks)
+              })
+         
+              it('responds with 204 and updates the Bookmark', () => {
+                const idToUpdate = 2
+                const updateBookmark = {
+                    title: "Website Updated Title",
+                    url: "http://www.updated-website-url.com",
+                    description: "This is updated description of website",
+                    rating: 4
+                }
+                const expectedBookmark = {
+                      ...testBookmarks[idToUpdate - 1],
+                      ...updateBookmark
+                }
+                return supertest(app)
+                  .patch(`/api/Bookmarks/${idToUpdate}`)
+                  .send(updateBookmark)
+                  .expect(204)
+                  .then(res =>
+                    supertest(app)
+                      .get(`/api/bookmarks/${idToUpdate}`)
+                      .expect(expectedBookmark)
+                  )
+              })
+
+              it(`responds with 400 when no required fields supplied`, () => {
+                 const idToUpdate = 2
+                 return supertest(app)
+                   .patch(`/api/bookmarks/${idToUpdate}`)
+                   .send({ irrelevantField: 'foo' })
+                   .expect(400, {
+                     error: {
+                       message: `Request body must contain either 'title', 'url', 'description' or 'rating'`
+                     }
+                   })
+              })
+
+              it(`responds with 204 when updating only a subset of fields`, () => {
+                const idToUpdate = 2
+                const updateBookmark = {
+                  title: 'updated Bookmark title',
+                }
+                const expectedBookmark = {
+                  ...testBookmarks[idToUpdate - 1],
+                  ...updateBookmark
+                }
+          
+                return supertest(app)
+                  .patch(`/api/bookmarks/${idToUpdate}`)
+                  .send({
+                    ...updateBookmark,
+                    fieldToIgnore: 'should not be in GET response'
+                  })
+                  .expect(204)
+                  .then(res =>
+                    supertest(app)
+                      .get(`/api/bookmarks/${idToUpdate}`)
+                      .expect(expectedBookmark)
+                  )
+              })
+            
+        }) //end context 'Given there are Bookmarks in the database'
+
+    })// end describe `PATCH /api/bookmarks/:bookmark_id`
 
 }) //end Bookmarks Endpoints
 

@@ -16,9 +16,9 @@ const serializeBookmark = bookmark => ({
 })
 
 
-//Route '/'
+
 bookmarksRouter
-    .route('/bookmarks')
+    .route('/bookmarks') // ----------------------------------------------------------------// Route '/'
     //GET
     .get((req,res,next) => {
         BookmarksService.getAllBookmarks(
@@ -72,9 +72,10 @@ bookmarksRouter
     })
 
 
-//Route '/:bookmark_id
+
 bookmarksRouter
-    .route(`/bookmarks/:bookmark_id`)
+    .route(`/bookmarks/:bookmark_id`) // -----------------------------------------------------------// Route '/:bookmark_id'
+    //ALL
     .all((req,res,next) => {
         BookmarksService.getById(
             req.app.get('db'),
@@ -112,9 +113,34 @@ bookmarksRouter
             })
             .catch(next)
     })
+    //PATCH
+    .patch(jsonParser, (req, res, next) => {
+          const { title, url, description, rating } = req.body
+          const bookmarkToUpdate = { title, url, description, rating }
+          
+          const numberOfValues = Object.values(bookmarkToUpdate).filter(Boolean).length
+               if (numberOfValues === 0) {
+                 return res.status(400).json({
+                   error: {
+                     message: `Request body must contain either 'title', 'url', 'description' or 'rating'`
+                   }
+                 })
+               }
+          
+          BookmarksService.updateBookmark(
+            req.app.get('db'),
+            req.params.bookmark_id,
+            bookmarkToUpdate
+          )
+            .then(numRowsAffected => {
+              res.status(204).end()
+            })
+            .catch(next)
+     })
 
 
-    module.exports = bookmarksRouter
+
+module.exports = bookmarksRouter
 
 /*
 
