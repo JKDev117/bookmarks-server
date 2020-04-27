@@ -1,6 +1,7 @@
 const express = require('express')
 const xss = require('xss') //sanitizing tool
 const BookmarksService = require('./bookmarks-service')
+const { isWebUri } = require('valid-url');
 
 const bookmarksRouter = express.Router()
 const jsonParser = express.json()
@@ -30,6 +31,7 @@ bookmarksRouter
     //POST
     .post(jsonParser, (req,res,next) => {
         const { title, url, description, rating} = req.body;
+
         const newBookmark = { title, url, description, rating }
 
         for(const [key, value] of Object.entries(newBookmark)){
@@ -39,7 +41,23 @@ bookmarksRouter
                 })
             }
         }
+        
+        if(!Number.isInteger(rating) || rating < 1 || rating > 5){
+            return res
+                .status(400)
+                .json({
+                    error: { message: `Rating must be a number 1-5`}
+                })
+        }
 
+        if(!isWebUri(url)){
+            return res
+                .status(400)
+                .json({
+                    error: { message: `url must be a valid URL`}
+                })
+        }
+        
         BookmarksService.insertBookmark(
             req.app.get('db'),
             newBookmark
@@ -97,3 +115,13 @@ bookmarksRouter
 
     module.exports = bookmarksRouter
 
+/*
+
+{
+    "title": "Bookmark Title",
+    "url": "http://www.website.com",
+    "description": "",
+    "rating": 4
+}
+
+*/
