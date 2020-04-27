@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require('express')
 const xss = require('xss') //sanitizing tool
 const BookmarksService = require('./bookmarks-service')
@@ -64,7 +65,7 @@ bookmarksRouter
         )
             .then(bookmark => {
                 res.status(201)
-                   .location(`/bookmarks/${bookmark.id}`)
+                   .location(path.posix.join(req.originalUrl, `/${bookmark.id}`))
                    .json(serializeBookmark(bookmark))
             })
             .catch(next)

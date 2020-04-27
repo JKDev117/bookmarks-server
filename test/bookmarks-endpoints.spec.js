@@ -22,12 +22,12 @@ describe('Bookmarks Endpoints', function() {
     
     /* ------------------------------------------------------------------------------- */
 
-    //GET /bookmarks
-    describe('GET /bookmarks', () => {
+    //GET /api/bookmarks
+    describe('GET /api/bookmarks', () => {
         context('Given no bookmarks', () => {
             it('responds with 200 and an empty list', () => {
                 return supertest(app)
-                    .get('/bookmarks')
+                    .get('/api/bookmarks')
                     .expect(200, [])
             })
         })
@@ -41,9 +41,9 @@ describe('Bookmarks Endpoints', function() {
                     .insert(testBookmarks)
             })
     
-            it('GET /bookmarks responds with 200 and all of the bookmarks', () => {
+            it('GET /api/bookmarks responds with 200 and all of the bookmarks', () => {
                 return supertest(app)
-                    .get('/bookmarks')
+                    .get('/api/bookmarks')
                     .expect(200, testBookmarks)
             })
         })
@@ -57,7 +57,7 @@ describe('Bookmarks Endpoints', function() {
 
             it('removes XX attack content', () => {
                 return supertest(app)
-                    .get('/bookmarks')
+                    .get('/api/bookmarks')
                     .expect(200)
                     .expect(res => {
                         expect(res.body[0].title).to.eql(expectedBookmark.title)
@@ -67,16 +67,16 @@ describe('Bookmarks Endpoints', function() {
 
         })
 
-    }) //end GET /bookmarks
+    }) //end GET /api/bookmarks
 
 
-    //GET /bookmarks/:bookmark_id
-    describe('GET /bookmarks/:bookmark_id', () => {
+    //GET /api/bookmarks/:bookmark_id
+    describe('GET /api/bookmarks/:bookmark_id', () => {
         context('Given no bookmarks', ()=> {
             it('responds with 404', () => {
                 const bookmarkId = 1
                 return supertest(app)
-                    .get(`/bookmarks/${bookmarkId}`)
+                    .get(`/api/bookmarks/${bookmarkId}`)
                     .expect(404, {error: {message: "Bookmark doesn't exist!" }})
             })
         })
@@ -89,11 +89,11 @@ describe('Bookmarks Endpoints', function() {
                     .insert(testBookmarks)
             })
     
-            it('GET /bookmarks/:bookmark_id responds with 200 and the specified bookmark', () => {
+            it('GET /api/bookmarks/:bookmark_id responds with 200 and the specified bookmark', () => {
                 const bookmarkId = 2
                 const expectedBookmark = testBookmarks[bookmarkId - 1]
                 return supertest(app)
-                    .get(`/bookmarks/${bookmarkId}`)
+                    .get(`/api/bookmarks/${bookmarkId}`)
                     .expect(200, expectedBookmark)
             })
         })
@@ -108,7 +108,7 @@ describe('Bookmarks Endpoints', function() {
 
             it('removes XSS attack content', () => {
                 return supertest(app)
-                    .get(`/bookmarks/${maliciousBookmark.id}`)
+                    .get(`/api/bookmarks/${maliciousBookmark.id}`)
                     .expect(200)
                     .expect(res => {
                         expect(res.body.title).to.eql(expectedBookmark.title)
@@ -119,11 +119,11 @@ describe('Bookmarks Endpoints', function() {
 
         })
 
-    }) //end GET /bookmarks/:bookmark_id   
+    }) //end GET /api/bookmarks/:bookmark_id   
 
 
-    //POST /bookmarks
-    describe('POST /bookmarks', () => {
+    //POST /api/bookmarks
+    describe('POST /api/bookmarks', () => {
         it(`creates a bookmark, responding with 201 and the new bookmark`, function(){
             const newBookmark = {
                 title:  "Test new bookmark",
@@ -132,7 +132,7 @@ describe('Bookmarks Endpoints', function() {
                 rating: 4
             }
             return supertest(app)
-                .post('/bookmarks')
+                .post('/api/bookmarks')
                 .send(newBookmark)
                 .expect(201)
                 .expect(res => {
@@ -141,11 +141,11 @@ describe('Bookmarks Endpoints', function() {
                     expect(res.body.description).to.eql(newBookmark.description)
                     expect(res.body.rating).to.eql(newBookmark.rating)
                     expect(res.body).to.have.property('id')
-                    expect(res.headers.location).to.eql(`/bookmarks/${res.body.id}`)
+                    expect(res.headers.location).to.eql(`/api/bookmarks/${res.body.id}`)
                 })
                 .then(postRes => 
                     supertest(app)
-                        .get(`/bookmarks/${postRes.body.id}`)
+                        .get(`/api/bookmarks/${postRes.body.id}`)
                         .expect(postRes.body)
                 )
         })
@@ -163,7 +163,7 @@ describe('Bookmarks Endpoints', function() {
             it(`responds with 400 and an error message when the ${field} is missing`, () => {
                 delete newBookmark[field]
                 return supertest(app)
-                    .post('/bookmarks')
+                    .post('/api/bookmarks')
                     .send(newBookmark)
                     .expect(400, {
                         error: { message: `Missing '${field}' in request body`}
@@ -173,7 +173,7 @@ describe('Bookmarks Endpoints', function() {
         
         it('removes XSS attack content from response', () => {
             return supertest(app)
-                .post(`/bookmarks`)
+                .post(`/api/bookmarks`)
                 .send(maliciousBookmark)
                 .expect(201)
                 .expect(res => {
@@ -181,16 +181,16 @@ describe('Bookmarks Endpoints', function() {
                     expect(res.body.description).to.eql(expectedBookmark.description)
                 })
         })
-    }) //end 'POST /bookmarks'
+    }) //end 'POST /api/bookmarks'
 
 
-    //DELETE /bookmarks/:bookmark_id
-    describe(`DELETE /bookmarks/:bookmark_id`, () => {
+    //DELETE /api/bookmarks/:bookmark_id
+    describe(`DELETE /api/bookmarks/:bookmark_id`, () => {
         context('Given no bookmarks', () => {
             it('responds with 404', () => {
                 const bookmarkId = 123456
                 return supertest(app)
-                    .delete(`/bookmarks/${bookmarkId}`)
+                    .delete(`/api/bookmarks/${bookmarkId}`)
                     .expect(404, {error: {message: `Bookmark doesn't exist!`}})
             })
         })
@@ -208,11 +208,11 @@ describe('Bookmarks Endpoints', function() {
                 const idToRemove = 2
                 const expectedBookmarks = testBookmarks.filter(bookmark => bookmark.id !== idToRemove)
                 return supertest(app)
-                    .delete(`/bookmarks/${idToRemove}`)
+                    .delete(`/api/bookmarks/${idToRemove}`)
                     .expect(204)
                     .then(res => 
                         supertest(app)
-                            .get(`/bookmarks`)
+                            .get(`/api/bookmarks`)
                             .expect(expectedBookmarks)
                     )
             })
