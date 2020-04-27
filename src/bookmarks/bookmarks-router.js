@@ -56,17 +56,40 @@ bookmarksRouter
 //Route '/:bookmark_id
 bookmarksRouter
     .route(`/bookmarks/:bookmark_id`)
+    .all((req,res,next) => {
+        BookmarksService.getById(
+            req.app.get('db'),
+            req.params.bookmark_id
+        )
+            .then(bookmark => {
+                if(!bookmark) {
+                    return res.status(404).json({
+                        error: {message: `Bookmark doesn't exist!`}
+                    })
+                }
+                res.bookmark = bookmark //save the bookmark for the next middleware
+                next() //don't forget to call next so the next middleware happens
+            })
+            .catch(next)
+    })
     //GET
     .get((req,res,next) => {
-        const knexInstance = req.app.get('db')
-        BookmarksService.getById(knexInstance, req.params.bookmark_id)
-            .then(bookmark => {
-                if(!bookmark){
-                    return res.status(404).json({
-                        error: {message: "Bookmark doesn't exist!"}
-                    })
-                } 
-                res.json(serializeBookmark(bookmark))
+        res.json({
+            id: res.bookmark.id,
+            title: xss(res.bookmark.title),
+            url: xss(res.bookmark.url),
+            description: xss(res.bookmark.description),
+            rating: res.bookmark.rating
+        })
+    })
+    //DELETE
+    .delete((req,res,next) => {
+        BookmarksService.deleteBookmark(
+            req.app.get('db'),
+            req.params.bookmark_id
+        )
+            .then(() => {
+                res.status(204).end()
             })
             .catch(next)
     })
