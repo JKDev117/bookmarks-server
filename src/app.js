@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const {v4:uuid} = require('uuid');
 const bookmarksRouter = require('./bookmarks/bookmarks-router');
 const logger = require('./logger');
+const validateBearerToken = require('./validate-bearer-token');
 
 const app = express();
 
@@ -18,6 +19,8 @@ const morganOption = (process.env.NODE_ENV === 'production')
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
+
+app.use(validateBearerToken);
 
 app.use(function errorHandler(error, req, res, next) {
   let response
@@ -31,7 +34,7 @@ app.use(function errorHandler(error, req, res, next) {
 })
 
 
-app.use('/api',bookmarksRouter);
+app.use('/api', bookmarksRouter);
 
 
 app.get('/', (req, res) => {

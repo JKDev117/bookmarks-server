@@ -28,6 +28,7 @@ describe('Bookmarks Endpoints', function() {
             it('responds with 200 and an empty list', () => {
                 return supertest(app)
                     .get('/api/bookmarks')
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(200, [])
             })
         })
@@ -44,6 +45,7 @@ describe('Bookmarks Endpoints', function() {
             it('GET /api/bookmarks responds with 200 and all of the bookmarks', () => {
                 return supertest(app)
                     .get('/api/bookmarks')
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(200, testBookmarks)
             })
         })
@@ -58,6 +60,7 @@ describe('Bookmarks Endpoints', function() {
             it('removes XX attack content', () => {
                 return supertest(app)
                     .get('/api/bookmarks')
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(200)
                     .expect(res => {
                         expect(res.body[0].title).to.eql(expectedBookmark.title)
@@ -77,6 +80,7 @@ describe('Bookmarks Endpoints', function() {
                 const bookmarkId = 1
                 return supertest(app)
                     .get(`/api/bookmarks/${bookmarkId}`)
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(404, {error: {message: "Bookmark doesn't exist!" }})
             })
         })
@@ -94,6 +98,7 @@ describe('Bookmarks Endpoints', function() {
                 const expectedBookmark = testBookmarks[bookmarkId - 1]
                 return supertest(app)
                     .get(`/api/bookmarks/${bookmarkId}`)
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(200, expectedBookmark)
             })
         })
@@ -109,6 +114,7 @@ describe('Bookmarks Endpoints', function() {
             it('removes XSS attack content', () => {
                 return supertest(app)
                     .get(`/api/bookmarks/${maliciousBookmark.id}`)
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(200)
                     .expect(res => {
                         expect(res.body.title).to.eql(expectedBookmark.title)
@@ -134,6 +140,7 @@ describe('Bookmarks Endpoints', function() {
             return supertest(app)
                 .post('/api/bookmarks')
                 .send(newBookmark)
+                .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                 .expect(201)
                 .expect(res => {
                     expect(res.body.title).to.eql(newBookmark.title)
@@ -146,6 +153,7 @@ describe('Bookmarks Endpoints', function() {
                 .then(postRes => 
                     supertest(app)
                         .get(`/api/bookmarks/${postRes.body.id}`)
+                        .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                         .expect(postRes.body)
                 )
         })
@@ -165,6 +173,7 @@ describe('Bookmarks Endpoints', function() {
                 return supertest(app)
                     .post('/api/bookmarks')
                     .send(newBookmark)
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(400, {
                         error: { message: `Missing '${field}' in request body`}
                     })
@@ -175,6 +184,7 @@ describe('Bookmarks Endpoints', function() {
             return supertest(app)
                 .post(`/api/bookmarks`)
                 .send(maliciousBookmark)
+                .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                 .expect(201)
                 .expect(res => {
                     expect(res.body.title).to.eql(expectedBookmark.title)
@@ -191,6 +201,7 @@ describe('Bookmarks Endpoints', function() {
                 const bookmarkId = 123456
                 return supertest(app)
                     .delete(`/api/bookmarks/${bookmarkId}`)
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(404, {error: {message: `Bookmark doesn't exist!`}})
             })
         })
@@ -209,10 +220,12 @@ describe('Bookmarks Endpoints', function() {
                 const expectedBookmarks = testBookmarks.filter(bookmark => bookmark.id !== idToRemove)
                 return supertest(app)
                     .delete(`/api/bookmarks/${idToRemove}`)
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(204)
                     .then(res => 
                         supertest(app)
                             .get(`/api/bookmarks`)
+                            .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                             .expect(expectedBookmarks)
                     )
             })
@@ -226,6 +239,7 @@ describe('Bookmarks Endpoints', function() {
                 const bookmarkId = 123456
                 return supertest(app)
                     .patch(`/api/bookmarks/${bookmarkId}`)
+                    .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                     .expect(404, { error: { message: `Bookmark doesn't exist!` } })
             })
         }) //end context `Given no bookmarks`
@@ -254,10 +268,12 @@ describe('Bookmarks Endpoints', function() {
                 return supertest(app)
                   .patch(`/api/Bookmarks/${idToUpdate}`)
                   .send(updateBookmark)
+                  .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                   .expect(204)
                   .then(res =>
                     supertest(app)
                       .get(`/api/bookmarks/${idToUpdate}`)
+                      .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                       .expect(expectedBookmark)
                   )
               })
@@ -267,6 +283,7 @@ describe('Bookmarks Endpoints', function() {
                  return supertest(app)
                    .patch(`/api/bookmarks/${idToUpdate}`)
                    .send({ irrelevantField: 'foo' })
+                   .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                    .expect(400, {
                      error: {
                        message: `Request body must contain either 'title', 'url', 'description' or 'rating'`
@@ -290,10 +307,12 @@ describe('Bookmarks Endpoints', function() {
                     ...updateBookmark,
                     fieldToIgnore: 'should not be in GET response'
                   })
+                  .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                   .expect(204)
                   .then(res =>
                     supertest(app)
                       .get(`/api/bookmarks/${idToUpdate}`)
+                      .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                       .expect(expectedBookmark)
                   )
               })
