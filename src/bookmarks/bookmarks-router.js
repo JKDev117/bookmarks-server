@@ -115,6 +115,7 @@ bookmarksRouter
     })
     //PATCH
     .patch(jsonParser, (req, res, next) => {
+          
           const { title, url, description, rating } = req.body
           const bookmarkToUpdate = { title, url, description, rating }
           
@@ -127,6 +128,22 @@ bookmarksRouter
                  })
                }
           
+          if(rating!=undefined && (!Number.isInteger(rating) || rating < 1 || rating > 5)){
+              return res
+                  .status(400)
+                  .json({
+                  error: { message: `Rating must be a number 1-5`}
+              })
+          }
+          
+          if(url!=undefined && !isWebUri(url)){
+              return res
+              .status(400)
+              .json({
+                  error: { message: `url must be a valid URL`}
+              })
+          }
+           
           BookmarksService.updateBookmark(
             req.app.get('db'),
             req.params.bookmark_id,

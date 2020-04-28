@@ -31,7 +31,7 @@ app.use(function errorHandler(error, req, res, next) {
 })
 
 
-app.use('/api/',bookmarksRouter);
+app.use('/api',bookmarksRouter);
 
 
 app.get('/', (req, res) => {
