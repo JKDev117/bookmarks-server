@@ -1,3 +1,4 @@
+/*
 const bookmarks = [{
     "id": 1,
     "title": "Google",
@@ -19,3 +20,5 @@ const bookmarks = [{
 
 
 module.exports = bookmarks;
+
+*/
