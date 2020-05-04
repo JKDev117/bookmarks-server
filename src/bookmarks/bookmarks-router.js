@@ -3,6 +3,7 @@ const express = require('express')
 const xss = require('xss') //sanitizing tool
 const BookmarksService = require('./bookmarks-service')
 const { isWebUri } = require('valid-url');
+const logger = require('../logger')
 
 const bookmarksRouter = express.Router()
 const jsonParser = express.json()
@@ -37,6 +38,7 @@ bookmarksRouter
 
         for(const [key, value] of Object.entries(newBookmark)){
             if(value==null){
+                logger.error(`Missing '${key}' in request body`)
                 return res.status(400).json({
                     error: { message: `Missing '${key}' in request body`}
                 })
@@ -44,6 +46,7 @@ bookmarksRouter
         }
         
         if(!Number.isInteger(rating) || rating < 1 || rating > 5){
+            logger.error(`Rating must be a number 1-5`)
             return res
                 .status(400)
                 .json({
@@ -52,6 +55,7 @@ bookmarksRouter
         }
 
         if(!isWebUri(url)){
+            logger.error(`url must be a valid URL`)
             return res
                 .status(400)
                 .json({
@@ -83,6 +87,7 @@ bookmarksRouter
         )
             .then(bookmark => {
                 if(!bookmark) {
+                    logger.error(`Bookmark doesn't exist!`)
                     return res.status(404).json({
                         error: {message: `Bookmark doesn't exist!`}
                     })
@@ -121,6 +126,7 @@ bookmarksRouter
           
           const numberOfValues = Object.values(bookmarkToUpdate).filter(Boolean).length
                if (numberOfValues === 0) {
+                 logger.error(`Request body must contain either 'title', 'url', 'description' or 'rating'`)
                  return res.status(400).json({
                    error: {
                      message: `Request body must contain either 'title', 'url', 'description' or 'rating'`
@@ -129,6 +135,7 @@ bookmarksRouter
                }
           
           if(rating!=undefined && (!Number.isInteger(rating) || rating < 1 || rating > 5)){
+              logger.error(`Rating must be a number 1-5`)
               return res
                   .status(400)
                   .json({
@@ -137,6 +144,7 @@ bookmarksRouter
           }
           
           if(url!=undefined && !isWebUri(url)){
+              logger.error(`url must be a valid URL`)
               return res
               .status(400)
               .json({
