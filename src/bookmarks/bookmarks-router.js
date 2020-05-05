@@ -26,8 +26,9 @@ bookmarksRouter
             req.app.get('db')
         )
             .then(bookmarks => {
+                res.json(bookmarks.map(bookmark => serializeBookmark(bookmark)))
                 console.log(res.json())
-                res.json(bookmarks.map(serializeBookmark))
+                //res.json(bookmarks.map(serializeBookmark))
             })
             .catch(next)
     })
