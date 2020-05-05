@@ -19,7 +19,7 @@ const serializeBookmark = bookmark => ({
 
 
 bookmarksRouter
-    .route('/bookmarks') // ----------------------------------------------------------------// Route '/'
+    .route('api/bookmarks') // ----------------------------------------------------------------// 
     //GET
     .get((req,res,next) => {
         BookmarksService.getAllBookmarks(
@@ -80,7 +80,7 @@ bookmarksRouter
 
 
 bookmarksRouter
-    .route(`/bookmarks/:bookmark_id`) // -----------------------------------------------------------// Route '/:bookmark_id'
+    .route(`api/bookmarks/:bookmark_id`) // -----------------------------------------------------------// 
     //ALL
     .all((req,res,next) => {
         BookmarksService.getById(

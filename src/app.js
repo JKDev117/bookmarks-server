@@ -9,6 +9,7 @@ const {v4:uuid} = require('uuid');
 const bookmarksRouter = require('./bookmarks/bookmarks-router');
 const logger = require('./logger');
 const validateBearerToken = require('./validate-bearer-token');
+const logger = require('../logger')
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use(function errorHandler(error, req, res, next) {
   if (NODE_ENV === 'production') {
     response = { error: { message: 'server error' } }
   } else {
+    logger.error(error.message)
     console.error(error)
     response = { message: error.message, error }
   }
@@ -34,7 +36,7 @@ app.use(function errorHandler(error, req, res, next) {
 })
 
 
-app.use('/api', bookmarksRouter);
+app.use(bookmarksRouter);
 
 
 app.get('/', (req, res) => {
