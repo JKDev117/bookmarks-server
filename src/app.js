@@ -9,7 +9,6 @@ const {v4:uuid} = require('uuid');
 const bookmarksRouter = require('./bookmarks/bookmarks-router');
 const logger = require('./logger');
 const validateBearerToken = require('./validate-bearer-token');
-const logger = require('../logger')
 
 const app = express();
 
