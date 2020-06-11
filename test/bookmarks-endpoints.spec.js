@@ -57,7 +57,7 @@ describe('Bookmarks Endpoints', function() {
                     .insert([maliciousBookmark])
             })
 
-            it('removes XX attack content', () => {
+            it('removes XSS attack content', () => {
                 return supertest(app)
                     .get('/api/bookmarks')
                     .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
