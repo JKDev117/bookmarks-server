@@ -195,7 +195,7 @@ describe('Bookmarks Endpoints', function() {
 
 
     // -----------------------------------------------------------------------// DELETE /api/bookmarks/:bookmark_id
-    describe(`DELETE /api/bookmarks/:bookmark_id`, () => {
+    describe.only(`DELETE /api/bookmarks/:bookmark_id`, () => {
         context('Given no bookmarks', () => {
             it('responds with 404', () => {
                 const bookmarkId = 123456
